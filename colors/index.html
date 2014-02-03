@@ -1,0 +1,126 @@
+<html>
+<head>
+	<style>
+		body {
+			margin: 0px;
+			padding: 0px;
+		}
+	</style>
+	<script src="Keyboard.js"></script>
+	<script src="requestAnimFrame.js"></script>
+	<script src="socket.io.min.js"></script>
+</head>
+<body>
+	<canvas id="myCanvas"></canvas>
+
+	<div id="scoreTable">
+
+	</div>
+
+	<script>
+
+		var canvas = document.getElementById("myCanvas");
+		var context = canvas.getContext('2d');
+		var username = prompt("Enter your name:") || "Anonymous";
+		var socket = io.connect('http://localhost:4242');
+		socket.on('connect', function () {
+			socket.id = socket.socket.sessionid;
+			socket.emit('newUsername', username);
+		});
+
+		var kb = new KeyboardJS(false);
+		var color = "white"
+		var players = {};
+
+		function Player(id) {
+			this.id = id;
+		}
+
+		Player.prototype.score = 0;
+		Player.prototype.name = "";
+
+		var oldSpacebar = false;
+		Player.prototype.logic = function () {
+
+			if (this.id === socket.id) {
+				if (!oldSpacebar && kb.keys[32]) {
+					console.log("sending hit!");
+					socket.emit('hit', this);
+				}
+				oldSpacebar = kb.keys[32];
+			}
+		}
+
+		Player.prototype.updateWithData = function(data) {
+			if (data === undefined) return;
+			if (data.score !== undefined) this.score = data.score;
+			if (data.name !== undefined) this.name = data.name;
+		};
+
+		Player.prototype.render = function (ctx) {
+			//guarda el context actual (per recuperar-lo despres)
+			ctx.save();
+			ctx.translate(40, 0); //desplacem el punt d'origen
+			ctx.fillStyle = "#333399";
+			ctx.fillText(this.name + ' has ' + this.score + ' points', 0, 0);
+
+			ctx.restore(); // recuperem el context inicial
+		}
+
+		socket.on('playerUpdate', function (playerData) {
+			var player = players[playerData.id];
+			if (player === undefined) {
+				player = new Player(playerData.id);
+				players[player.id] = player;
+			}
+			player.updateWithData(playerData);
+			render();
+		});
+
+		socket.on('playerDisconnect', function (playerID) {
+			delete players[playerID];
+			console.log('player ' + playerID + ' has disconnected from the server :/');
+		});
+
+		socket.on('newColor', function(col) {
+			color = col;
+			render();
+		});
+
+		function logic () {
+			for (var playerId in players) players[playerId].logic();
+		}
+
+		function render () {
+			context.clearRect(0, 0, canvas.width, canvas.height);
+			context.fillStyle = color;
+			context.fillRect(0, 0, canvas.width, canvas.height);
+			context.font = '20px Verdana';
+
+			context.save();
+			for (var playerId in players) {
+				context.translate(0, 40); // espai vertical entre cada jugador
+				players[playerId].render(context);
+				//console.log(players[playerId].name +' has ' + players[playerId].score);
+			}
+			context.restore();
+		}
+
+		window.onresize = function () {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+			context.font = '20px Verdana';
+			render();
+		}
+
+		function mainLoop () {
+			requestAnimFrame(mainLoop);
+			logic();
+		}
+
+		requestAnimFrame(mainLoop);
+		window.onresize();
+
+	</script>
+</body>
+</html>
