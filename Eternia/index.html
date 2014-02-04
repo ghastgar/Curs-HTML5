@@ -1,0 +1,106 @@
+<html>
+<head>
+	<style>
+
+		body {
+			margin: 0px;
+			padding: 0px;
+		}
+
+	</style>
+
+	<script src="Keyboard.js"></script>
+	<script src="requestAnimFrame.js"></script>
+	<script src="js/Pos.js"></script>
+	<script src="js/Cell.js"></script>
+	<script src="js/Map.js"></script>
+	<script src="js/Camera.js"></script>
+	<script src="js/Player.js"></script>
+</head>
+<body>
+	<canvas id = "myCanvas"></canvas>
+
+	<script>
+		// MAPA INFINIT, mous la càmera amb WASD i es generen les cel·les necessàries
+		// per mostrar un mapa que ompli la pantalla
+		//versio final profe ludumpad.com/eternia-mini/client/
+
+		var canvas = document.getElementById('myCanvas');
+
+		var context = canvas.getContext('2d');
+		var kb = new KeyboardJS(false);
+
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+
+		var camera = new Camera(canvas.width/2, canvas.height/2);
+		var map = new Map();
+		var player = new Player('pepe');
+		player.pos = new Pos(0,0);
+		map.getCellAt(player.pos).playerId = player.id;
+
+		var speed = 500;
+
+		function logic (dt) {
+
+			player.logic(dt);
+			camera.targetPos = player.pos;
+			/*
+			if (kb.char('W')) camera.targetPos.y -= speed*dt;
+			else if (kb.char('S')) camera.targetPos.y += speed*dt;
+			if (kb.char('A')) camera.targetPos.x -= speed*dt;
+			else if (kb.char('D')) camera.targetPos.x += speed*dt;
+			*/
+			camera.logic(dt, speed);
+		}
+
+		function render(ctx) {
+			//calculem el rang de cel·les que s'han de renderitzar (X i Y inicials i finals)
+			var iX = Math.floor((camera.pos.x - canvas.width/2)/CELL_EDGE);
+			var iY = Math.floor((camera.pos.y - canvas.height/2)/CELL_EDGE);
+			var eX = Math.floor((camera.pos.x + canvas.width/2)/CELL_EDGE);
+			var eY = Math.floor((camera.pos.y + canvas.height/2)/CELL_EDGE);
+
+			ctx.save();
+
+			camera.focusOnContext(ctx);  //ajustem el context a la posicio de la càmera
+			//haurem de pintar tots els buffers de les cel·les de dins del rang trobat
+			for (var x = iX; x <= eX; ++x) {
+				for (var y = iY; y <=  eY; ++y) {
+					var cell = map.getCellAt(new Pos(x,y));
+					ctx.drawImage(cell.buff, x*CELL_EDGE, y*CELL_EDGE);
+
+					if (cell.playerId !== undefined) {
+						ctx.drawImage(player.buff, x, y);
+					}
+						
+				}
+			}
+
+			ctx.restore();
+
+		}
+
+		window.onresize = function() {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		}
+		window.onresize();
+
+		var oldDate = +new Date();
+		function mainLoop() {
+
+			requestAnimFrame(mainLoop);
+			var newDate = +new Date();
+			var delta = (newDate-oldDate)/1000;
+			oldDate = newDate;
+
+			logic(delta);
+			render(context);
+		}
+
+		requestAnimFrame(mainLoop);
+
+	</script>	
+</body>
+</html>
