@@ -33,9 +33,16 @@
 
 		var camera = new Camera(canvas.width/2, canvas.height/2);
 		var map = new Map();
+		var speed = 500;
 
 		function logic (dt) {
-			camera.logic(dt);
+
+			if (kb.char('W')) camera.targetPos.y -= speed*dt;
+			else if (kb.char('S')) camera.targetPos.y += speed*dt;
+			if (kb.char('A')) camera.targetPos.x -= speed*dt;
+			else if (kb.char('D')) camera.targetPos.x += speed*dt;
+
+			camera.logic(dt, speed);
 		}
 
 		function render(ctx) {
@@ -44,6 +51,7 @@
 			var iY = Math.floor((camera.pos.y - canvas.height/2)/CELL_EDGE);
 			var eX = Math.floor((camera.pos.x + canvas.width/2)/CELL_EDGE);
 			var eY = Math.floor((camera.pos.y + canvas.height/2)/CELL_EDGE);
+
 
 			//map.clearBounds(new Pos(iX, iY), new Pos(eX, eY));
 

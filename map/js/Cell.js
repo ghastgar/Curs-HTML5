@@ -39,6 +39,3 @@ Cell.prototype.getPos = function(index) {
 
 // parseInt("3x4",10) = 3
 // parseInt("0x4",10) = 0
-var k = 0;
-for (var i = 0; i < maps.length; ++i) ++k;
-console.log(k);

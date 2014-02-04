@@ -3,18 +3,18 @@
 
 function Camera(x, y) {
 	this.pos = new Pos(x, y);
-	this.speed = 500;
+	this.targetPos = this.pos.clone();
 }
 
 Camera.prototype = {
-	logic : function (dt) {
-		if (kb.char('W')) this.pos.y -= this.speed*dt;
-		if (kb.char('S')) this.pos.y += this.speed*dt;
-		if (kb.char('A')) this.pos.x -= this.speed*dt;
-		if (kb.char('D')) this.pos.x += this.speed*dt;
+
+	logic : function (dt, speed) {
+		this.pos.x += (this.targetPos.x - this.pos.x)/(speed*dt);
+		this.pos.y += (this.targetPos.y - this.pos.y)/(speed*dt);
 	},
-	focusOnContext : function (ctx) {
-		//ajustem el canvas a la posició de la càmera
-		ctx.translate(-(this.pos.x-canvas.width/2), -(this.pos.y-canvas.height/2));
-	}
+}
+
+Camera.prototype.focusOnContext = function (ctx) {
+	//ajustem el canvas a la posició de la càmera
+	ctx.translate(-(this.pos.x-canvas.width/2), -(this.pos.y-canvas.height/2));
 }
