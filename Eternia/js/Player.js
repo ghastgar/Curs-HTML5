@@ -5,18 +5,17 @@ var PL_MARGIN = 5;
 
 function Player(id) {
 	this.id = (undefined || id);
-	this.pos = new Pos();
 	this.color = colors[Math.floor(Math.random()*colors.length)];
 	this.genBuffer();
-	this.targetPos = new Pos();
+	this.pos = new Pos(0, 0);
 }
 
 Player.prototype.logic = function (dt) {
-	this.targetPos = new Pos(Math.floor(this.pos.x/CELL_EDGE), Math.floor(this.pos.y/CELL_EDGE));
-	if (kb.char('W')) this.targetPos.y -= 1;
-	else if (kb.char('S')) this.targetPos.y += 1;
-	if (kb.char('A')) this.targetPos.x -= 1;
-	else if (kb.char('D')) this.targetPos.x += 1;
+	//this.targetPos = new Pos(Math.floor(this.pos.x/CELL_EDGE), Math.floor(this.pos.y/CELL_EDGE));
+	if (kb.char('W')) camera.targetPos.y -= 1;
+	else if (kb.char('S')) camera.targetPos.y += 1;
+	if (kb.char('A')) camera.targetPos.x -= 1;
+	else if (kb.char('D')) camera.targetPos.x += 1;
 	map.movePlayerToPos(player, this.targetPos);
 }
 

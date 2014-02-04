@@ -8,6 +8,10 @@ function Pos(x,y) {
 		else this.y = y;
 }
 
+Pos.prototype.newPos = function() {
+	return new Pos(Math.floor(Math.random*canvas.width/CELL_EDGE), Math.floor(Math.random*canvas.height/CELL_EDGE));
+}
+
 // returns the string indicating its position in the form "0x1"
 Pos.prototype.getIndex = function() {
 	return this.x + "x" + this.y;
