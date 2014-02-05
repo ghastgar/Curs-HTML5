@@ -81,15 +81,16 @@
 			//haurem de pintar tots els buffers de les cel·les de dins del rang trobat
 			for (var x = iX; x <= eX; ++x) {
 				for (var y = iY; y <=  eY; ++y) {
-				//-->
-					var dist = Math.sqrt((x-player.x*x-player.x)+(y-player.y)*(y-player.y));
+					
+					var dist = Math.sqrt(Math.pow(x-player.x, 2)+Math.pow(y-player.y, 2));
+
 					if (dist < MAX_FOG_DIST) {
 						if (dist < MIN_FOG_DIST) ctx.globalAlpha = 1;
 						else ctx.globalAlpha = (1 - (dist - MIN_FOG_DIST)/(MAX_FOG_DIST - MIN_FOG_DIST));
-					}//<---
-					
-					var cell = map.getCellAt(new Pos(x,y));
-					ctx.drawImage(cell.buff, x*CELL_EDGE, y*CELL_EDGE);
+								
+						var cell = map.getCellAt(new Pos(x,y));
+						ctx.drawImage(cell.buff, x*CELL_EDGE, y*CELL_EDGE);
+					}
 
 					/*if (cell.playerId !== undefined) {
 						ctx.drawImage(player.buff, x, y);
