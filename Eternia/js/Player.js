@@ -7,7 +7,9 @@ function Player(id) {
 	this.id = (undefined || id);
 	this.color = colors[Math.floor(Math.random()*colors.length)];
 	this.genBuffer();
-	this.pos = new Pos(0, 0);
+	this.pos;
+	this.x = 0;
+	this.y = 0;
 }
 
 Player.prototype.logic = function (dt) {

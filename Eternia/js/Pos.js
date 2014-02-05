@@ -25,3 +25,7 @@ Pos.prototype.toString = function() {
 Pos.prototype.clone = function() {
 	return new Pos(this.x, this.y);
 }
+
+Pos.prototype.distToPos = function (pos) {
+	return Math.sqrt((pos.x-this.x*pos.x-this.x)+(pos.y-this.y,2)*(pos.y-this.y,2));
+}

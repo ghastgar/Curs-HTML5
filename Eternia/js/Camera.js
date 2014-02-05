@@ -3,7 +3,7 @@
 
 function Camera(x, y) {
 	this.pos = new Pos(x, y);
-	this.targetPos = this.pos.clone();
+	this.targetPos = player.pos.clone();
 }
 
 Camera.prototype = {
