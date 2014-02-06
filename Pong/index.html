@@ -1,0 +1,81 @@
+<html>
+<head>
+	<style>
+		body {
+			padding: 0px;
+			margin: 0px;
+		}
+	</style>
+
+	<script src="requestAnimFrame.js"></script>
+	<script src="Keyboard.js"></script>
+	<script src="js/player.js"></script>
+	<script src="socket.io.min.js"></script>
+</head>
+
+<body>
+	<canvas id="myCanvas"></canvas>
+	<script>
+		var canvas = document.getElementById("myCanvas");
+		var context = canvas.getContext('2d');
+		var socket = io.connect('http://localhost:8080');
+		socket.on('connect', function() {
+			socket.id = socket.socket.sessionid;
+		});
+		var kb = new KeyboardJS(false);
+		canvas.width = 1200;
+		canvas.height = 650;
+
+		var players = [];
+
+		var oldDate = +new Date();
+
+		function logic(dt) {
+			for (var i = 0; i < 2; ++i)
+				if (players[i] !== undefined && players[i].id === socket.id) players[i].logic(dt);
+		}
+
+		function render(ctx) {
+			//ctx.save();
+			//ctx.globalAlpha = 0.4;
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			for (var i = 0; i < 2; ++i) if(players[i]!== undefined) players[i].render(ctx);
+			//ctx.restore();
+		}
+
+		function mainLoop() {
+			requestAnimFrame(mainLoop);
+			var newDate = +new Date();
+			var delta = (newDate-oldDate)/1000;
+			oldDate = newDate;
+
+			if (players.length > 0) {
+				logic(delta);
+				render(context);
+			}
+		}
+
+		function getPlayer(index) {
+			return players[index];
+		}
+
+		socket.on('playerUpdate', function(playerData) {
+			index = playerData.index;
+			var player = getPlayer(index);
+			if (player === undefined) {
+				player = new Player();
+				players[index] = player;
+			}
+			player.updateWithData(playerData);
+		});
+
+		socket.on('playerDisconnect', function(index){
+			delete players[index];
+		})
+
+		requestAnimFrame(mainLoop);
+
+	</script>
+</body>
+
+</html>
