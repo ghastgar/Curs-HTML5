@@ -1,0 +1,15 @@
+{
+  "name": "colors",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "ghastgar",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io": "~0.9.16",
+    "node": "0.0.0"
+  }
+}

@@ -1,0 +1,149 @@
+<html>
+<head>
+	<style>
+
+		body {
+			margin: 0px;
+			padding: 0px;
+		}
+
+	</style>
+
+	<script src="Keyboard.js"></script>
+	<script src="requestAnimFrame.js"></script>
+	<script src="js/Pos.js"></script>
+	<script src="js/Cell.js"></script>
+	<script src="js/Map.js"></script>
+	<script src="js/Camera.js"></script>
+	<script src="js/Player.js"></script>
+	<script src="socket.io.min.js"></script>
+</head>
+<body>
+	<canvas id = "myCanvas"></canvas>
+
+	<script>
+		// MAPA INFINIT, mous la càmera amb WASD i es generen les cel·les necessàries
+		// per mostrar un mapa que ompli la pantalla
+		//versio final profe ludumpad.com/eternia-mini/client/
+
+		var canvas = document.getElementById('myCanvas');
+
+		var context = canvas.getContext('2d');
+		var kb = new KeyboardJS(false);
+
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+
+		var socket = io.connect('http://localhost:8080');
+		socket.on('connect', function() {
+			socket.id = socket.socket.sessionid;
+		});
+
+		var players = {};
+		var player = players[socket.id];
+		socket.on('playerUpdate', function(player) {
+			players[socket.id].updateWithData(player);
+		});
+
+		//player.pos = new Pos(0, 0);
+		var camera = new Camera(canvas.width/2, canvas.height/2);
+		var map = new Map();
+		map.getCellAt(player.pos).playerId = player.id;
+
+		var MAX_FOG_DIST = 14;
+		var MIN_FOG_DIST = 10;
+		var speed = 500;
+		var keyPressed = false;
+
+		function logic (dt) {
+
+			//map.cells[player.pos.getIndex] = undefined;
+			if (!keyPressed) {
+				if (kb.char('W')) player.y -= 1;
+				else if (kb.char('S')) player.y += 1;
+				else if (kb.char('A')) player.x -= 1;
+				else if (kb.char('D')) player.x += 1;
+
+			}
+			keyPressed = kb.char('W') || kb.char('S') || kb.char('A') || kb.char('D');
+			//map.cells[player.pos.getIndex] = player.id;
+			camera.targetPos = new Pos(CELL_EDGE*player.x, CELL_EDGE*player.y);
+			camera.logic(dt, speed);
+
+			/*
+			camera.targetPos = player.pos;
+			if (kb.char('W')) camera.targetPos.y -= speed*dt;
+			else if (kb.char('S')) camera.targetPos.y += speed*dt;
+			if (kb.char('A')) camera.targetPos.x -= speed*dt;
+			else if (kb.char('D')) camera.targetPos.x += speed*dt;
+			camera.logic(dt, speed);
+			*/
+		}
+
+		function render(ctx) {
+			//calculem el rang de cel·les que s'han de renderitzar (X i Y inicials i finals)
+			var iX = Math.floor((camera.pos.x - canvas.width/2)/CELL_EDGE);
+			var iY = Math.floor((camera.pos.y - canvas.height/2)/CELL_EDGE);
+			var eX = Math.floor((camera.pos.x + canvas.width/2)/CELL_EDGE);
+			var eY = Math.floor((camera.pos.y + canvas.height/2)/CELL_EDGE);
+
+			ctx.save();
+			ctx.clearRect(0,0,canvas.width, canvas.height);
+			camera.focusOnContext(ctx);  //ajustem el context a la posicio de la càmera
+			//haurem de pintar tots els buffers de les cel·les de dins del rang trobat
+			for (var x = iX; x <= eX; ++x) {
+				for (var y = iY; y <=  eY; ++y) {
+				//-->
+					var dist = Math.sqrt(Math.pow(x-player.x,2)+Math.pow(y-player.y,2));
+					if(dist > MAX_FOG_DIST) ctx.globalAlpha = 0;
+					else ctx.globalAlpha = 1 - dist/MAX_FOG_DIST;
+					//if (dist < MIN_FOG_DIST) ctx.globalAlpha = 1;
+					/*
+					if (dist < MAX_FOG_DIST) {
+						if (dist < MIN_FOG_DIST) ctx.globalAlpha = 1;
+						else ctx.globalAlpha = (1 - (dist - MIN_FOG_DIST)/(MAX_FOG_DIST - MIN_FOG_DIST));
+					}//<---*/
+					
+					
+					var cell = map.getCellAt(new Pos(x,y));
+					ctx.drawImage(cell.buff, x*CELL_EDGE, y*CELL_EDGE);
+
+					/*if (cell.playerId !== undefined) {
+						ctx.drawImage(player.buff, x, y);
+					}
+					*/
+
+					if (x === player.x && y === player.y) {
+						ctx.drawImage(player.buff, CELL_EDGE*x, CELL_EDGE*y);
+					}
+						
+				}
+			}
+
+			ctx.restore();
+
+		}
+
+		window.onresize = function() {
+			canvas.width = window.innerWidth;
+			canvas.height = window.innerHeight;
+		}
+		window.onresize();
+
+		var oldDate = +new Date();
+		function mainLoop() {
+
+			requestAnimFrame(mainLoop);
+			var newDate = +new Date();
+			var delta = (newDate-oldDate)/1000;
+			oldDate = newDate;
+
+			logic(delta);
+			render(context);
+		}
+
+		requestAnimFrame(mainLoop);
+
+	</script>	
+</body>
+</html>
