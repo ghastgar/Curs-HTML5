@@ -5,9 +5,11 @@ function Ball () {
 	this.y;
 	this.vx;
 	this.vy
-	this.edge;
+	this.edge = 22;
 	this.index;
 	this.color;
+	this.img = new Image();
+	this.img.src="images/ballBlue.png"
 }
 
 Ball.prototype.logic = function(dt) {
@@ -34,8 +36,9 @@ Ball.prototype.logic = function(dt) {
 }
 
 Ball.prototype.render = function(ctx) {
-	ctx.fillStyle = this.color;
-	ctx.fillRect(this.x, this.y, this.edge, this.edge);
+	//ctx.fillStyle = this.color;
+	//ctx.fillRect(this.x, this.y, this.edge, this.edge);
+	ctx.drawImage(this.img, this.x, this.y, this.edge, this.edge);
 }
 
 Ball.prototype.hitTestWith = function(players, ballIndex) {

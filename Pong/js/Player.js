@@ -1,5 +1,11 @@
 // player.js
 
+var p1Img = new Image();
+p1Img.src="images/paddleBlu.png";
+var p2Img = new Image();
+p2Img.src="images/paddleRed.png";
+//images by Kenney from kenney.nl
+
 function Player () {
 	this.x;
 	this.y;
@@ -22,6 +28,8 @@ Player.prototype.updateWithData = function(data) {
 		this.index = data.index;
 		this.x = data.x;
 		this.v = data.v;
+		if (this.index === 0) this.img = p1Img;
+		else if (this.index = 1)this.img = p2Img;
 	}
 	if (data.y !== undefined) this.y = data.y;	
 	if (data.v !== undefined) this.v = data.v;
@@ -49,6 +57,7 @@ Player.prototype.logic = function(dt) {
 }
 
 Player.prototype.render = function (ctx) {
-	ctx.fillStyle = this.color;
-	ctx.fillRect(this.x, this.y, this.w, this.h);
+	//ctx.fillStyle = this.color;
+	//ctx.fillRect(this.x, this.y, this.w, this.h);
+	ctx.drawImage(this.img, this.x, this.y, this.w, this.h);
 }

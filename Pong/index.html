@@ -47,8 +47,11 @@
 			//}
 		}
 
-		function render(ctx) {	
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
+		function render(ctx) {
+			ctx.golbalAlpha = 0.2;
+			ctx.fillStyle = '#FFFFFF';
+			ctx.fillRect(0, 0, canvas.width, canvas.height);
+			ctx.globalAlpha = 1;
 			for (var i = 0; i < 2; ++i) if(players[i]!== undefined) players[i].render(ctx);
 			ball.render(ctx);
 			
@@ -84,6 +87,8 @@
 		socket.on('changeBallDir', function(){
 			//if ((+new Date() - lastHit) > 400) {
 				ball.vx *= -1;
+				//if (ball.vx < 0) ball.vx -= 20;
+				//else ball.vx += 20;
 			//}
 		});
 

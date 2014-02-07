@@ -14,8 +14,8 @@ function Player(index, id) {
 }
 
 Player.prototype = {
-	w: 20,
-	h: 80,
+	w: 24,
+	h: 104,
 }
 
 module.exports = Player;

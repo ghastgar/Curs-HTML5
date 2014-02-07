@@ -64,6 +64,8 @@ io.sockets.on('connection', function (socket) {
 			//newV += 20;
 			//io.sockets.emit('playerUpdate', {index: plInd, v: newV});
 			ball.vx *= -1;
+			//if (ball.vx < 0) ball.vx -= 20;
+			//else ball.vx += 20;
 			io.sockets.emit('changeBallDir');
 		}
 		lastHit = now;

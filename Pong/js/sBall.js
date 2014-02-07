@@ -7,7 +7,7 @@ function Ball() {
 	this.y = 300;//Math.random()*(config.MAP_HEIGHT);
 	this.vx = 80;
 	this.vy = 100*(Math.random())-25;
-	this.edge = 20;
+	this.edge = 22;
 	this.color = 'red';
 }
 
