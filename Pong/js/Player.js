@@ -23,7 +23,8 @@ Player.prototype.updateWithData = function(data) {
 		this.x = data.x;
 		this.v = data.v;
 	}
-	this.y = data.y;	
+	if (data.y !== undefined) this.y = data.y;	
+	if (data.v !== undefined) this.v = data.v;
 }
 
 Player.prototype.logic = function(dt) {
@@ -49,5 +50,5 @@ Player.prototype.logic = function(dt) {
 
 Player.prototype.render = function (ctx) {
 	ctx.fillStyle = this.color;
-	ctx.fillRect(this.x, this.y, this.w, this.h)
+	ctx.fillRect(this.x, this.y, this.w, this.h);
 }

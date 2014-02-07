@@ -9,7 +9,8 @@
 
 	<script src="requestAnimFrame.js"></script>
 	<script src="Keyboard.js"></script>
-	<script src="js/player.js"></script>
+	<script src="js/Player.js"></script>
+	<script src="js/Ball.js"></script>
 	<script src="socket.io.min.js"></script>
 </head>
 
@@ -18,29 +19,39 @@
 	<script>
 		var canvas = document.getElementById("myCanvas");
 		var context = canvas.getContext('2d');
+		
+		var MAP_WIDTH = 800;
+		var MAP_HEIGHT = 600;
+		var MARGIN = 80;
+
 		var socket = io.connect('http://localhost:8080');
 		socket.on('connect', function() {
 			socket.id = socket.socket.sessionid;
 		});
 		var kb = new KeyboardJS(false);
-		canvas.width = 1200;
-		canvas.height = 650;
+		canvas.width = MAP_WIDTH;
+		canvas.height = MAP_HEIGHT;
 
 		var players = [];
+		ball = new Ball();
 
 		var oldDate = +new Date();
 
 		function logic(dt) {
 			for (var i = 0; i < 2; ++i)
 				if (players[i] !== undefined && players[i].id === socket.id) players[i].logic(dt);
+			//for (var i = 0; i < balls.length; ++i) {
+			//	var ball = balls[i];
+			ball.hitTestWith(players, i);
+			ball.logic(dt);
+			//}
 		}
 
-		function render(ctx) {
-			//ctx.save();
-			//ctx.globalAlpha = 0.4;
+		function render(ctx) {	
 			ctx.clearRect(0, 0, canvas.width, canvas.height);
 			for (var i = 0; i < 2; ++i) if(players[i]!== undefined) players[i].render(ctx);
-			//ctx.restore();
+			ball.render(ctx);
+			
 		}
 
 		function mainLoop() {
@@ -69,9 +80,20 @@
 			player.updateWithData(playerData);
 		});
 
+		//var lastHit = +new Date();
+		socket.on('changeBallDir', function(){
+			//if ((+new Date() - lastHit) > 400) {
+				ball.vx *= -1;
+			//}
+		});
+
+		socket.on('ballUpdate', function(data) {
+			if (data !== undefined) ball.updateWithData(data);
+		});
+
 		socket.on('playerDisconnect', function(index){
 			delete players[index];
-		})
+		});
 
 		requestAnimFrame(mainLoop);
 
