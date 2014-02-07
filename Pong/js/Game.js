@@ -1,4 +1,4 @@
-// game.js
+// game.js 
 
 function Game() {
 	this.players = [];
