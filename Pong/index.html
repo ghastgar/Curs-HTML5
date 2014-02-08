@@ -4,6 +4,11 @@
 		body {
 			padding: 0px;
 			margin: 0px;
+			background-color: #BEE3E9;
+		}
+		#myCanvas {
+			display: block;
+  			margin: 0 auto;
 		}
 	</style>
 
@@ -97,7 +102,7 @@
 		});
 
 		socket.on('playerDisconnect', function(index){
-			delete players[index];
+			//delete players[index];
 		});
 
 		requestAnimFrame(mainLoop);
